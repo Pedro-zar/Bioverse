@@ -16,6 +16,17 @@ interface SubmissionResponse {
   createdAt?: Date;
 }
 
+type IntakeFields = {
+  age: string;
+  weight: string;
+  height: string;
+  symptoms: string;
+  history: string;
+  lifestyle: string;
+};
+
+
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<SubmissionResponse | SubmissionResponse[] | { error: string }>
@@ -37,22 +48,33 @@ export default async function handler(
 
     if (!submission) {
       return res.status(404).json({ error: 'Submission not found' });
-    } else
+    }
 
+    const intakeData: IntakeFields =
+      typeof submission.submission_data === 'object' && submission.submission_data !== null
+        ? (submission.submission_data as IntakeFields)
+        : {
+            age: '',
+            weight: '',
+            height: '',
+            symptoms: '',
+            history: '',
+            lifestyle: '',
+          };
     // Return all data for specific IDs
     return res.status(200).json({
       id: submission.id.toString(),
-      username: submission.username || '',
+      username: submission.username,
       timestamp: submission.createdAt.toISOString(),
       recommendation: submission.recommendation || '',
       riskScore: submission.riskScore || 0,
-      age: submission.submission_data?.age ?? '',
-      weight: submission.submission_data?.weight ?? '',
-      height: submission.submission_data?.height ?? '',
-      symptoms: submission.submission_data?.symptoms ?? '',
-      history: submission.submission_data?.history ?? '',
-      lifestyle: submission.submission_data?.lifestyle ?? '',
-    });    
+      age: intakeData.age,
+      weight: intakeData.weight,
+      height: intakeData.height,
+      symptoms: intakeData.symptoms,
+      history: intakeData.history,
+      lifestyle: intakeData.lifestyle,
+    });
   } else {
     // Return less-detailed data all IDs
     const submissions = await prisma.patient_intake.findMany();
