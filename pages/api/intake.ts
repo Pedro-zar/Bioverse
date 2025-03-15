@@ -54,7 +54,9 @@ export default async function handler(
     // Insert data into the patient_intake table
     const newSubmission = await prisma.patient_intake.create({
       data: {
-        username: "patient", // placeholder since the Login is being hardcoded
+        // placeholder since the Login is being hardcoded. Since the app has only one user by now, 
+        // I didn't used the username as the PK for the database, so it is possible to create many submissions for testing.
+        username: "patient", 
         submission_data: { age, weight, height, symptoms, history, lifestyle },
         recommendation,
         riskScore,

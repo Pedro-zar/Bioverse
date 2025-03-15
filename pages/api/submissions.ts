@@ -46,12 +46,12 @@ export default async function handler(
       timestamp: submission.createdAt.toISOString(),
       recommendation: submission.recommendation ,
       riskScore: submission.riskScore,
-      age: submission.submissionData.age,
-      weight: submission.submissionData.weight,
-      height: submission.submissionData.height,
-      symptoms: submission.submissionData.symptoms,
-      history: submission.submissionData.history,
-      lifestyle: submission.submissionData.lifestyle,
+      age: submission.submission_data.age,
+      weight: submission.submission_data.weight,
+      height: submission.submission_data.height,
+      symptoms: submission.submission_data.symptoms,
+      history: submission.submission_data.history,
+      lifestyle: submission.submission_data.lifestyle,
     });
   } else {
     // Return less-detailed data all IDs
