@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../lib/db';
+import { patient_intake } from '@prisma/client';
 
 interface SubmissionResponse {
   id: string;
@@ -77,12 +78,12 @@ export default async function handler(
     });
   } else {
     // Return less-detailed data all IDs
-    const submissions = await prisma.patient_intake.findMany();
-    const limitedSubmissions = submissions.map((submission: SubmissionResponse) => ({
+    const submissions: patient_intake[] = await prisma.patient_intake.findMany();
+    const limitedSubmissions = submissions.map((submission: patient_intake) => ({
       id: submission.id.toString(),
-      username: submission.username,
-      timestamp: submission.createdAt?.toISOString(),
-      recommendation: submission.recommendation,
+      username: submission.username ?? '',
+      timestamp: submission.createdAt.toISOString(),
+      recommendation: submission.recommendation ?? '',
       riskScore: submission.riskScore,
     }));
     return res.status(200).json(limitedSubmissions);
