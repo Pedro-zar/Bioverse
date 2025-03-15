@@ -37,7 +37,7 @@ export default async function handler(
 
     if (!submission) {
       return res.status(404).json({ error: 'Submission not found' });
-    }
+    } else
 
     // Return all data for specific IDs
     return res.status(200).json({
