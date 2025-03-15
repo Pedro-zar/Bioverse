@@ -54,7 +54,7 @@ This project simulates a telehealth platform where patients fill out an intake f
    ```bash
    git clone https://github.com/your-username/bioverse-telehealth.git
    cd bioverse-telehealth
-```
+    ```
 
 2. **Install dependencies:**
 
