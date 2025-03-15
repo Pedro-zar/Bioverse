@@ -64,7 +64,7 @@ export default async function handler(
     // Return all data for specific IDs
     return res.status(200).json({
       id: submission.id.toString(),
-      username: submission.username,
+      username: submission.username || '',
       timestamp: submission.createdAt.toISOString(),
       recommendation: submission.recommendation || '',
       riskScore: submission.riskScore || 0,
