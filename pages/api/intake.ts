@@ -52,7 +52,7 @@ export default async function handler(
 
   try {
     // Insert data into the patient_intake table
-    let prisma = gen_prisma()
+    const prisma = gen_prisma()
     const newSubmission = await prisma.patient_intake.create({
       data: {
         // placeholder since the Login is being hardcoded. Since the app has only one user by now, 

@@ -38,7 +38,7 @@ export default async function handler(
 
   const { id } = req.query;
 
-  let prisma = gen_prisma()
+  const prisma = gen_prisma()
   if (id) {
     if (typeof id !== 'string') {
       return res.status(400).json({ error: 'Invalid id parameter' });
