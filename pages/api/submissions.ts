@@ -42,17 +42,17 @@ export default async function handler(
     // Return all data for specific IDs
     return res.status(200).json({
       id: submission.id.toString(),
-      username: submission.username,
+      username: submission.username || '',
       timestamp: submission.createdAt.toISOString(),
-      recommendation: submission.recommendation ,
-      riskScore: submission.riskScore,
-      age: submission.submission_data.age,
-      weight: submission.submission_data.weight,
-      height: submission.submission_data.height,
-      symptoms: submission.submission_data.symptoms,
-      history: submission.submission_data.history,
-      lifestyle: submission.submission_data.lifestyle,
-    });
+      recommendation: submission.recommendation || '',
+      riskScore: submission.riskScore || 0,
+      age: submission.submission_data.age ?? '',
+      weight: submission.submission_data.weight ?? '',
+      height: submission.submission_data.height ?? '',
+      symptoms: submission.submission_data.symptoms ?? '',
+      history: submission.submission_data.history ?? '',
+      lifestyle: submission.submission_data.lifestyle ?? '',
+    });    
   } else {
     // Return less-detailed data all IDs
     const submissions = await prisma.patient_intake.findMany();
