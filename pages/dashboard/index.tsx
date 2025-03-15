@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Header from '../../components/header';
+import styles from '../../styles/dashboard.module.css';
 
 interface Submission {
   id: string;
@@ -17,12 +19,12 @@ const Dashboard: React.FC = () => {
       try {
         const res = await fetch('/api/submissions');
         if (!res.ok) {
-          throw new Error('Erro ao carregar as submissões');
+          throw new Error('Error loading submissions');
         }
         const data = await res.json();
         setSubmissions(data);
       } catch (error) {
-        console.error('Erro ao buscar dados:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
@@ -32,35 +34,37 @@ const Dashboard: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <h1>Clinical Dashboard</h1>
+    <div className={styles.dashboardContainer}>
+      <Header>Clinical Dashboard</Header>
       {loading ? (
-        <p>Loading data...</p>
+        <p className={styles.loadingText}>Loading data...</p>
       ) : (
-        <table border={1} cellPadding={8} cellSpacing={0}>
-          <thead>
-            <tr>
-              <th>Patient</th>
-              <th>Timestamp</th>
-              <th>Recommendation</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {submissions.map((sub) => (
-              <tr key={sub.id}>
-                <td>{sub.username}</td>
-                <td>{new Date(sub.timestamp).toLocaleString()}</td>
-                <td>{sub.recommendation}</td>
-                <td>
-                  <Link href={`/dashboard/${sub.id}`}>
-                    More details
-                  </Link>
-                </td>
+        <div className={styles.tableContainer}>
+          <table className={styles.dataTable}>
+            <thead>
+              <tr>
+                <th>Patient</th>
+                <th>Timestamp</th>
+                <th>Recommendation</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {submissions.map((sub) => (
+                <tr key={sub.id}>
+                  <td>{sub.username}</td>
+                  <td>{new Date(sub.timestamp).toLocaleString()}</td>
+                  <td>{sub.recommendation}</td>
+                  <td>
+                    <Link href={`/dashboard/${sub.id}`}>
+                      <a className={styles.detailsLink}>More details</a>
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
