@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import Logo from './logo';
+import Link from 'next/link';
 
 interface HeaderProps {
   children: ReactNode;
@@ -25,7 +26,9 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           color: '#000',
           marginRight: '1rem',
         }}>{children}</div>
-      <Logo />
+      <Link href="/login">
+        <Logo />
+      </Link>
     </div>
   );
 };
