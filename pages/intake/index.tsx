@@ -39,7 +39,7 @@ const Intake: React.FC = () => {
 
   const validateForm = () => {
     // All fields are required to be filled properly
-    for (let key in formData) {
+    for (const key in formData) {
       if (formData[key as keyof FormData].trim() === '') {
         return false;
       }
@@ -72,8 +72,12 @@ const Intake: React.FC = () => {
 
       const data = await res.json(); 
       setResult(data);
-    } catch (err: any) {
-      setError(err.message || 'Unexpected error.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message || 'Unexpected error.');
+      } else {
+        setError('Unexpected error.');
+      }
     } finally {
       setLoading(false);
     }

@@ -39,8 +39,12 @@ const Login: React.FC = () => {
       } else {
         setError(data.error || 'There was a problem with your username or password.');
       }
-    } catch (err) {
-      setError('An error occurred. Please try again.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError('An error occurred. Please try again.');
+      } else {
+        setError('Unexpected error.');
+      }
     }
   };
   
