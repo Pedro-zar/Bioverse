@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import prisma from '../../lib/db';
 
-interface Submission {
+interface SubmissionResponse {
   id: string;
   username: string;
   timestamp: string;
@@ -12,72 +13,56 @@ interface Submission {
   symptoms?: string;
   history?: string;
   lifestyle?: string;
+  createdAt?: Date;
 }
 
-// Simulated data (in a real app, data would come from a database)
-const submissions: Submission[] = [
-  {
-    id: '1',
-    username: 'patient1',
-    timestamp: new Date().toISOString(),
-    recommendation: 'Low risk – Maintain current habits',
-    riskScore: 1,
-    age: '25',
-    weight: '70',
-    height: '170',
-    symptoms: 'None',
-    history: 'N/A',
-    lifestyle: 'Sedentary',
-  },
-  {
-    id: '2',
-    username: 'patient2',
-    timestamp: new Date().toISOString(),
-    recommendation: 'High risk – Further evaluation recommended',
-    riskScore: 3,
-    age: '30',
-    weight: '90',
-    height: '180',
-    symptoms: 'Cough, fever',
-    history: 'Asthma',
-    lifestyle: 'Active',
-  },
-];
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<SubmissionResponse | SubmissionResponse[] | { error: string }>
+) {
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' });
-    return;
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  /* Two types of requests:
-   * 1 - Without an ID, return all submissions with non-detailed data.
-   * 2 - With a specific ID, return the full submission data (including form responses).
-   */
   const { id } = req.query;
+
   if (id) {
     if (typeof id !== 'string') {
-      res.status(400).json({ error: 'Invalid id parameter' });
-      return;
+      return res.status(400).json({ error: 'Invalid id parameter' });
     }
 
-    const submission = submissions.find((sub) => sub.id === id);
+    const submission = await prisma.patient_intake.findUnique({
+      where: { id: parseInt(id) },
+    });
+
     if (!submission) {
-      res.status(404).json({ error: 'Submission not found' });
-      return;
+      return res.status(404).json({ error: 'Submission not found' });
     }
 
-    // Return full data with form responses for a specific ID
-    res.status(200).json(submission);
+    // Return all data for specific IDs
+    return res.status(200).json({
+      id: submission.id.toString(),
+      username: submission.username,
+      timestamp: submission.createdAt.toISOString(),
+      recommendation: submission.recommendation ,
+      riskScore: submission.riskScore,
+      age: submission.submissionData.age,
+      weight: submission.submissionData.weight,
+      height: submission.submissionData.height,
+      symptoms: submission.submissionData.symptoms,
+      history: submission.submissionData.history,
+      lifestyle: submission.submissionData.lifestyle,
+    });
   } else {
-    // No id provided, return all submissions with limited data
-    const limitedSubmissions = submissions.map(({ id, username, timestamp, recommendation, riskScore }) => ({
-      id,
-      username,
-      timestamp,
-      recommendation,
-      riskScore,
+    // Return less-detailed data all IDs
+    const submissions = await prisma.patient_intake.findMany();
+    const limitedSubmissions = submissions.map((submission: SubmissionResponse) => ({
+      id: submission.id.toString(),
+      username: submission.username,
+      timestamp: submission.createdAt?.toISOString(),
+      recommendation: submission.recommendation,
+      riskScore: submission.riskScore,
     }));
-    res.status(200).json(limitedSubmissions);
+    return res.status(200).json(limitedSubmissions);
   }
 }

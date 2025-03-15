@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import prisma from '../../lib/db';
 
 interface IntakeData {
   age: string;
@@ -20,7 +21,6 @@ function simulateML(data: IntakeData): { recommendation: string; riskScore: numb
   const ageNum = parseInt(data.age);
   const weightNum = parseFloat(data.weight);
   
-  // Simple logic: if age is greater than 60 or weight is greater than 80 then high risk
   let risk = 'Low risk';
   let riskScore = 1;
   if (ageNum > 60 || weightNum > 80) {
@@ -32,7 +32,10 @@ function simulateML(data: IntakeData): { recommendation: string; riskScore: numb
   return { recommendation, riskScore };
 }
 
-export default function handler(req: NextApiRequest, res: NextApiResponse<IntakeResponse>) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<IntakeResponse>
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -44,22 +47,26 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Intake
     return res.status(400).json({ error: 'All fields are required.' });
   }
 
-  // Simulate ML processing
+  // Process ML simulation
   const { recommendation, riskScore } = simulateML({ age, weight, height, symptoms, history, lifestyle });
-  
-  // Simulated persistence logging
-  console.log('New submission:', {
-    age,
-    weight,
-    height,
-    symptoms,
-    history,
-    lifestyle,
-    recommendation,
-    riskScore,
-    timestamp: new Date().toISOString(),
-  });
 
-  // Return both recommendation and riskScore
-  return res.status(200).json({ recommendation, riskScore });
+  try {
+    // Insert data into the patient_intake table
+    const newSubmission = await prisma.patient_intake.create({
+      data: {
+        username: "patient", // placeholder since the Login is being hardcoded
+        submission_data: { age, weight, height, symptoms, history, lifestyle },
+        recommendation,
+        riskScore,
+      },
+    });
+
+    console.log('New submission inserted:', newSubmission);
+
+    // Return the recommendation and risk score
+    return res.status(200).json({ recommendation, riskScore });
+  } catch (error) {
+    console.error('Error inserting data:', error);
+    return res.status(500).json({ error: 'Unexpected error occurred.' });
+  }
 }
