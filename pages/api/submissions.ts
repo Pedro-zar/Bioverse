@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../lib/db';
+import gen_prisma from '../../lib/db';
 import { patient_intake } from '@prisma/client';
 
 interface SubmissionResponse {
@@ -38,11 +38,11 @@ export default async function handler(
 
   const { id } = req.query;
 
+  let prisma = gen_prisma()
   if (id) {
     if (typeof id !== 'string') {
       return res.status(400).json({ error: 'Invalid id parameter' });
     }
-
     const submission = await prisma.patient_intake.findUnique({
       where: { id: parseInt(id) },
     });
@@ -62,6 +62,7 @@ export default async function handler(
             history: '',
             lifestyle: '',
           };
+    await prisma.$disconnect();
     // Return all data for specific IDs
     return res.status(200).json({
       id: submission.id.toString(),
@@ -86,6 +87,7 @@ export default async function handler(
       recommendation: submission.recommendation ?? '',
       riskScore: submission.riskScore,
     }));
+    await prisma.$disconnect();
     return res.status(200).json(limitedSubmissions);
   }
 }

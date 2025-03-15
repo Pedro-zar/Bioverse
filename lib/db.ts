@@ -1,7 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient();
+function gen_prisma() {
+	return new PrismaClient();
+}
 
-
-
-export default prisma;
+export default gen_prisma;

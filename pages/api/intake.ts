@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../lib/db';
+import gen_prisma from '../../lib/db';
 
 interface IntakeData {
   age: string;
@@ -52,6 +52,7 @@ export default async function handler(
 
   try {
     // Insert data into the patient_intake table
+    let prisma = gen_prisma()
     const newSubmission = await prisma.patient_intake.create({
       data: {
         // placeholder since the Login is being hardcoded. Since the app has only one user by now, 
@@ -62,6 +63,7 @@ export default async function handler(
         riskScore,
       },
     });
+    await prisma.$disconnect();
 
     console.log('New submission inserted:', newSubmission);
 
